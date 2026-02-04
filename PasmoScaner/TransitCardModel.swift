@@ -121,9 +121,9 @@ final class TransitCardModel {
             
             var felicaTrans = felicaDecoder.decodeTransaction(from: block)
 
-            if case let entryName = getStationName(felicaTrans) {
-                felicaTrans.station?.stationName = entryName
-            }
+//            if case let entryName = getStationName(felicaTrans) {
+//                felicaTrans.station?.stationName = entryName
+//            }
 
             return felicaTrans
         }
