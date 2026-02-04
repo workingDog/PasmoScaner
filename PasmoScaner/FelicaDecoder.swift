@@ -9,7 +9,7 @@ import Foundation
 import CoreNFC
 
 
-// todo
+
 
 struct FelicaDecoder {
     
@@ -42,70 +42,32 @@ struct FelicaDecoder {
         print("\(label): \(hex)")
     }
     
-    func decodeTransaction(block: Data) -> FelicaTransaction {
+    func decodeTransaction(from block: Data) -> FelicaTransaction {
         let type = TransactionType(raw: block[0])
-        
         let date = decodeHistoryDate(from: block)!
-        //decodeFelicaDate(block[2], block[3])
         
-        let entry = Station( lineCode: block[4], stationCode: block[5])
+        let station = Station(areaCode: String(format: "%02X", block[3]),lineCode: String(format: "%02X", block[4]), stationCode: String(format: "%02X", block[5]))
+  
+        let balanceI16 = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
+        let balance = Int(balanceI16)
         
-        let exit = Station(lineCode: block[6], stationCode: block[7] )
-        
-        let balance = Int(block[8]) << 8 | Int(block[9])
-        
-        return FelicaTransaction(date: date,type: type, entry: entry,exit: exit, balance: balance)
+        return FelicaTransaction(date: date,type: type, station: station, balance: balance)
     }
-    
-    /*
-     func decodeFelicaDate(_ byte1: UInt8, _ byte2: UInt8) -> Date {
-     let year = Int(byte1 >> 1) + 2000
-     let month = Int(((byte1 & 0x01) << 3) | (byte2 >> 5))
-     let day = Int(byte2 & 0x1F)
-     
-     var comps = DateComponents()
-     comps.year = year
-     comps.month = month
-     comps.day = day
-     
-     return Calendar.current.date(from: comps) ?? Date()
-     }
-     
-     func decodeTransaction(data: Data) -> FelicaTransaction {
-     
-     let raw = RawFelicaTransaction(bytes: data)
-     
-     let date = decodeFelicaDate(high: raw.dateHigh, low: raw.dateLow)
-     
-     let entry = raw.entryLine //resolver.resolve(line: raw.entryLine, station: raw.entryStation)
-     
-     let exit = raw.exitLine //resolver.resolve(line: raw.exitLine, station: raw.exitStation)
-     
-     return FelicaTransaction(
-     raw: raw,
-     date: date,
-     transactionType: TransactionType(rawValue: raw.transactionType) ?? .unknown,
-     processType: ProcessType(rawValue: raw.processType) ?? .unknown,
-     entryStation: entry,
-     exitStation: exit,
-     balanceAfter: Int(raw.balance),
-     regionCode: raw.regionCode
-     )
-     }
-     */
+ 
 }
 
-struct FelicaTransaction {
-    let date: Date
-    let type: TransactionType
-    let entry: Station?
-    let exit: Station?
-    let balance: Int
+struct FelicaTransaction: Identifiable {
+    let id = UUID()
+    var date: Date
+    var type: TransactionType
+    var station: Station?
+    var balance: Int
 }
 
 struct Station {
-    let lineCode: UInt8
-    let stationCode: UInt8
+    var areaCode: String
+    var lineCode: String
+    var stationCode: String
     var stationName: String = ""
 }
 
@@ -120,67 +82,20 @@ enum TransactionType: UInt8 {
     }
 }
 
-/*
-struct FelicaTransaction {
-    let raw: RawFelicaTransaction
+struct JRStation: Identifiable, Codable {
+    let id = UUID()
+    
+    var lineCode: String
+    var stationCode: String
+    var stationName: String
+    var areaCode: String
+    var lineName: String
 
-    let date: Date
-    let transactionType: TransactionType
-    let processType: ProcessType
-
-    let entryStation: Station?
-    let exitStation: Station?
-
-    let balanceAfter: Int
-    let regionCode: UInt8
-}
-
-struct RawFelicaTransaction {
-    let bytes: Data
-
-    var transactionType: UInt8 { bytes[0] }
-    var processType: UInt8 { bytes[1] }
-
-    var dateHigh: UInt8 { bytes[2] }
-    var dateLow: UInt8 { bytes[3] }
-
-    var entryLine: UInt8 { bytes[4] }
-    var entryStation: UInt8 { bytes[5] }
-
-    var exitLine: UInt8 { bytes[6] }
-    var exitStation: UInt8 { bytes[7] }
-
-    var balance: UInt16 {
-        UInt16(bytes[8]) << 8 | UInt16(bytes[9])
+    enum CodingKeys: String, CodingKey {
+        case areaCode = "地区コード(16進)"
+        case lineCode = "線区コード(16進)"
+        case stationCode = "駅順コード(16進)"
+        case lineName = "線区名"
+        case stationName = "駅名"
     }
-
-    var regionCode: UInt8 { bytes[10] }
 }
-
-enum TransactionType: UInt8 {
-    case fare              = 0x01
-    case charge            = 0x02
-    case ticketPurchase    = 0x03
-    case adjustment        = 0x04
-    case bus               = 0x0D
-    case retail            = 0x46
-    case unknown
-}
-
-enum ProcessType: UInt8 {
-    case gateIn             = 0x01
-    case gateOut            = 0x02
-    case fareAdjustment     = 0x03
-    case charge             = 0x04
-    case bus                = 0x0D
-    case vendingMachine     = 0x46
-    case unknown
-}
-
-struct Station {
-    let lineCode: UInt8
-    let stationCode: UInt8
-    let name: String
-}
-*/
-
