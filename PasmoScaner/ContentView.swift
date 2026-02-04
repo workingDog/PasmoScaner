@@ -39,7 +39,7 @@ struct ContentView: View {
                             Spacer()
                             Text(item.date.formatted(date: .numeric, time: .omitted))
                         }
-            //            Text("\(item.station?.stationName ?? "")")
+                        Text("\(item.station?.stationName ?? "")")
                     }
                 }
             }

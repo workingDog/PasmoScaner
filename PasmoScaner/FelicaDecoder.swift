@@ -41,17 +41,17 @@ struct FelicaDecoder {
         let hex = block.map { String(format: "%02X", $0) }.joined(separator: " ")
         print("\(label): \(hex)")
     }
-    
+
     func decodeTransaction(from block: Data) -> FelicaTransaction {
         let type = TransactionType(raw: block[0])
         let date = decodeHistoryDate(from: block)!
         
-        let station = Station(areaCode: String(format: "%02X", block[3]),lineCode: String(format: "%02X", block[4]), stationCode: String(format: "%02X", block[5]))
+        let station = CardStation(areaCode: Int(block[3]), lineCode: Int(block[4]), stationCode: Int(block[5]))
   
         let balanceI16 = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
         let balance = Int(balanceI16)
         
-        return FelicaTransaction(date: date,type: type, station: station, balance: balance)
+        return FelicaTransaction(date: date, type: type, station: station, balance: balance)
     }
  
 }
@@ -60,14 +60,14 @@ struct FelicaTransaction: Identifiable {
     let id = UUID()
     var date: Date
     var type: TransactionType
-    var station: Station?
+    var station: CardStation?
     var balance: Int
 }
 
-struct Station {
-    var areaCode: String
-    var lineCode: String
-    var stationCode: String
+struct CardStation {
+    var areaCode: Int
+    var lineCode: Int
+    var stationCode: Int
     var stationName: String = ""
 }
 
@@ -82,20 +82,19 @@ enum TransactionType: UInt8 {
     }
 }
 
-struct JRStation: Identifiable, Codable {
+struct StationCode: Identifiable, Codable {
     let id = UUID()
     
-    var lineCode: String
-    var stationCode: String
-    var stationName: String
-    var areaCode: String
-    var lineName: String
+    var areaCode, lineCode, stationCode: Int?
+    var company, line, stationName: String
 
     enum CodingKeys: String, CodingKey {
-        case areaCode = "地区コード(16進)"
-        case lineCode = "線区コード(16進)"
-        case stationCode = "駅順コード(16進)"
-        case lineName = "線区名"
-        case stationName = "駅名"
+        case areaCode = "RegionCode"
+        case lineCode = "LineCode"
+        case stationCode = "StationCode"
+        
+        case company = "Company"
+        case line = "Line"
+        case stationName = "StationName"
     }
 }
