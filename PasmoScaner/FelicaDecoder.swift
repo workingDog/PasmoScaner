@@ -70,7 +70,7 @@ struct CardStation {
     var stationName: String = ""
 }
 
-// for file stationcodes.json
+// for reading file stationcodes.json
 struct StationCode: Identifiable, Codable {
     let id = UUID()
     

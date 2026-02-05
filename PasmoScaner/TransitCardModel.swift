@@ -19,9 +19,10 @@ final class TransitCardModel {
     
     var stationCodes: [StationCode] = []
     
-    var isScanning = false
     var balance: Int?
     var history: [FelicaTransaction] = []
+    
+    var isScanning = false
     var errorMessage: String?
     
     private let session = AsyncFeliCaSession()
@@ -48,9 +49,9 @@ final class TransitCardModel {
         isScanning = true
         errorMessage = nil
         do {
-            let tag = try await session.scan()
-            balance = try await readBalance(from: tag)
-            history = try await readHistory(from: tag, count: 10)
+            let card = try await session.scan()
+            balance = try await readBalance(from: card)
+            history = try await readHistory(from: card, count: 10)
             session.invalidate()
         } catch {
             errorMessage = error.localizedDescription
@@ -65,13 +66,13 @@ final class TransitCardModel {
         errorMessage = nil
     }
     
-    func readBalance(from tag: NFCFeliCaTag) async throws -> Int {
+    func readBalance(from card: NFCFeliCaTag) async throws -> Int {
         let serviceCode: UInt16 = 0x008B
         let serviceCodeList = [
             Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])
         ]
         let blockList = [ Data([0x80, 0x00]) ]
-        let (sf1, sf2, blocks) = try await tag.readWithoutEncryption(
+        let (sf1, sf2, blocks) = try await card.readWithoutEncryption(
             serviceCodeList: serviceCodeList,
             blockList: blockList
         )
@@ -86,13 +87,13 @@ final class TransitCardModel {
         return balance
     }
     
-    func readHistory(from tag: NFCFeliCaTag, count: Int) async throws -> [FelicaTransaction] {
+    func readHistory(from card: NFCFeliCaTag, count: Int) async throws -> [FelicaTransaction] {
         let serviceCode: UInt16 = 0x090F
         let serviceCodeList = [Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])]
         let blockList = (0..<count).map {
             Data([0x80, UInt8($0)])
         }
-        let (sf1, sf2, blocks) = try await tag.readWithoutEncryption(
+        let (sf1, sf2, blocks) = try await card.readWithoutEncryption(
             serviceCodeList: serviceCodeList,
             blockList: blockList
         )
@@ -110,7 +111,7 @@ final class TransitCardModel {
         return updatedHistory(hist)
     }
     
-    func updatedHistory(_ hist: [FelicaTransaction]) -> [FelicaTransaction] {
+    private func updatedHistory(_ hist: [FelicaTransaction]) -> [FelicaTransaction] {
         var enrichedHist: [FelicaTransaction] = []
         var hasOpenEntry = false
         
