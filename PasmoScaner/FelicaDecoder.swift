@@ -63,6 +63,12 @@ struct FelicaTransaction: Identifiable {
     var type: UInt8
     var station: CardStation?
     var balance: Int
+    var event: TransitEvent = .entry
+}
+
+enum TransitEvent: String, Codable {
+    case entry
+    case exit
 }
 
 struct CardStation {

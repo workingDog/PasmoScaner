@@ -42,7 +42,16 @@ struct ContentView: View {
                             Spacer()
                             Text(item.date.formatted(date: .numeric, time: .omitted))
                         }
-                        Text("\(item.station?.stationName ?? "")")
+                        HStack {
+                            if item.event == .exit {
+                                Text("\(item.station?.stationName ?? "")")
+                                Image(systemName: "figure.walk.departure")
+                            } else {
+                                Image(systemName: "figure.walk.departure")
+                                Text("\(item.station?.stationName ?? "")")
+                            }
+                        }
+                        .foregroundStyle(Color.blue)
                     }
                 }
             }
