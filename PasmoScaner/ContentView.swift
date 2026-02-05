@@ -20,10 +20,13 @@ struct ContentView: View {
             
             Text("Hold your PASMO near the top of iPhone")
                 .font(.headline)
-            
-            Text("Tap anywhere to scan")
-                .font(.caption)
-                .foregroundColor(.secondary)
+
+            Button("Scan") {
+                Task {
+                    cardModel.clear()
+                    await cardModel.scan()
+                }
+            }.buttonStyle(.borderedProminent)
             
             Spacer()
             
@@ -49,13 +52,6 @@ struct ContentView: View {
             }
         }
         .padding()
-        .contentShape(Rectangle()) // makes whole screen tappable
-        .onTapGesture {
-            Task {
-                cardModel.clear()
-                await cardModel.scan()
-            }
-        }
     }
  
 }

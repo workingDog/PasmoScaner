@@ -50,7 +50,7 @@ final class TransitCardModel {
         do {
             let tag = try await session.scan()
             balance = try await readBalance(from: tag)
-            history = try await readHistory(from: tag)
+            history = try await readHistory(from: tag, count: 10)
             session.invalidate()
         } catch {
             errorMessage = error.localizedDescription
@@ -93,7 +93,7 @@ final class TransitCardModel {
         return balance
     }
 
-    func readHistory(from tag: NFCFeliCaTag, count: Int = 10) async throws -> [FelicaTransaction] {
+    func readHistory(from tag: NFCFeliCaTag, count: Int) async throws -> [FelicaTransaction] {
         let serviceCode: UInt16 = 0x090F
         let serviceCodeList = [Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])]
         let blockList = (0..<count).map {
@@ -106,35 +106,55 @@ final class TransitCardModel {
         guard sf1 == 0x00, sf2 == 0x00 else {
             throw NFCError.readFailed
         }
-        return blocks.compactMap { block -> FelicaTransaction? in
+        
+        let hist = blocks.compactMap { block -> FelicaTransaction? in
             guard block.count == 16 else { return nil }
             guard felicaDecoder.decodeHistoryDate(from: block) != nil else { return nil }
-            
-            var felicaTrans = felicaDecoder.decodeTransaction(from: block)
-
-            if case let entryName = getStationName(felicaTrans) {
-                felicaTrans.station?.stationName = entryName
-            }
-
+            let felicaTrans = felicaDecoder.decodeTransaction(from: block)
             return felicaTrans
         }
+
+        return updatedHist(hist.reversed())
     }
     
-    func getStationName(_ trans: FelicaTransaction) -> String {
-        var entryName = ""
-        
-        if let station = trans.station  {
-            let jrStation = stationCodes.first {
-                $0.areaCode == station.areaCode &&
-                $0.stationCode == station.stationCode }
-            if let jr = jrStation {
-                entryName = jr.stationName
+    func updatedHist(_ hist: [FelicaTransaction]) -> [FelicaTransaction] {
+        var enrichedHist: [FelicaTransaction] = []
+        var hasOpenEntry = false
+
+        for var trans in hist {
+
+            // Ignore non-railway records
+            guard trans.station != nil else {
+                enrichedHist.append(trans)
+                continue
             }
+
+            let isExit: Bool
+
+            if !hasOpenEntry {
+                // Not currently in a trip → this must be entry
+                isExit = false
+                hasOpenEntry = true
+            } else {
+                // Already inside a trip → this must be exit
+                isExit = true
+                hasOpenEntry = false
+            }
+
+            if let station = trans.station,
+               let jr = stationCodes.first(where: {
+                   $0.areaCode == station.areaCode &&
+                   $0.stationCode == station.stationCode
+               }) {
+
+                let prefix = isExit ? "exit " : "entry "
+                trans.station?.stationName = prefix + jr.stationName
+            }
+
+            enrichedHist.append(trans)
         }
-
-        return entryName
+        
+        return enrichedHist.reversed()
     }
-    
+
 }
-
-

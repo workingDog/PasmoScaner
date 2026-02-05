@@ -43,7 +43,8 @@ struct FelicaDecoder {
     }
 
     func decodeTransaction(from block: Data) -> FelicaTransaction {
-        let type = TransactionType(raw: block[0])
+        let type = block[1]
+        
         let date = decodeHistoryDate(from: block)!
         
         let station = CardStation(areaCode: Int(block[3]), lineCode: Int(block[4]), stationCode: Int(block[5]))
@@ -59,7 +60,7 @@ struct FelicaDecoder {
 struct FelicaTransaction: Identifiable {
     let id = UUID()
     var date: Date
-    var type: TransactionType
+    var type: UInt8
     var station: CardStation?
     var balance: Int
 }
@@ -69,36 +70,6 @@ struct CardStation {
     var lineCode: Int
     var stationCode: Int
     var stationName: String = ""
-}
-
-enum TransactionType: UInt8 {
-    case fare = 0x01
-    case charge = 0x02
-    case bus = 0x0D
-    case unknown
-    
-    init(raw: UInt8) {
-        self = TransactionType(rawValue: raw) ?? .unknown
-    }
-}
-
-
-// for file stationcodes.json
-struct StationCode2: Identifiable, Codable {
-    let id = UUID()
-    
-    var areaCode, lineCode, stationCode: Int?
-    var company, line, stationName: String
-
-    enum CodingKeys: String, CodingKey {
-        case areaCode = "RegionCode"
-        case lineCode = "LineCode"
-        case stationCode = "StationCode"
-        
-        case company = "Company"
-        case line = "Line"
-        case stationName = "StationName"
-    }
 }
 
 // for file stationcodes2.json
@@ -131,5 +102,23 @@ struct StationCode: Identifiable, Codable {
         self.line = try container.decode(String.self, forKey: .line)
         self.stationName = try container.decode(String.self, forKey: .stationName)
     }
-    
+
+    // for file stationcodes.json
+//    struct StationCode2: Identifiable, Codable {
+//        let id = UUID()
+//        
+//        var areaCode, lineCode, stationCode: Int?
+//        var company, line, stationName: String
+//
+//        enum CodingKeys: String, CodingKey {
+//            case areaCode = "RegionCode"
+//            case lineCode = "LineCode"
+//            case stationCode = "StationCode"
+//            
+//            case company = "Company"
+//            case line = "Line"
+//            case stationName = "StationName"
+//        }
+//    }
+
 }
