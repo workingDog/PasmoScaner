@@ -45,13 +45,12 @@ struct ContentView: View {
                         HStack {
                             if item.event == .exit {
                                 Text("\(item.station?.stationName ?? "")")
-                                Image(systemName: "figure.walk.departure")
+                                Image(systemName: "figure.walk.departure").foregroundStyle(Color.blue)
                             } else {
-                                Image(systemName: "figure.walk.departure")
+                                Image(systemName: "figure.walk.departure").foregroundStyle(Color.blue)
                                 Text("\(item.station?.stationName ?? "")")
                             }
                         }
-                        .foregroundStyle(Color.blue)
                     }
                 }
             }
