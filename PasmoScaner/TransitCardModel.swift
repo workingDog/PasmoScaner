@@ -33,15 +33,17 @@ final class TransitCardModel {
     }
     
     private func getStationCodes() -> [StationCode] {
+        guard let url = Bundle.main.url(forResource: "stationcodes", withExtension: "json") else {
+            assertionFailure("stationcodes.json not found in bundle")
+            return []
+        }
         do {
-            let path = Bundle.main.path(forResource: "stationcodes", ofType: "json")!
-            let fileURL = URL(fileURLWithPath: path)
-            let data = try Data(contentsOf: fileURL, options: .mappedIfSafe)
+            let data = try Data(contentsOf: url)
             return try JSONDecoder().decode([StationCode].self, from: data)
         } catch {
-            print(error)
+            print("Failed to load station codes:", error)
+            return []
         }
-        return []
     }
     
     @MainActor
