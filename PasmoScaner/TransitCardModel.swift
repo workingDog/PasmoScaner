@@ -140,17 +140,19 @@ final class TransitCardModel {
                 isExit = true
                 hasOpenEntry = false
             }
-
+            
             if let station = trans.station,
                let jr = stationCodes.first(where: {
                    $0.areaCode == station.areaCode &&
                    $0.stationCode == station.stationCode
                }) {
-
-                let prefix = isExit ? "exit " : "entry "
-                trans.station?.stationName = prefix + jr.stationName
+                if isExit {
+                    trans.station?.stationName = jr.stationName + " ->"
+                } else {
+                    trans.station?.stationName = "-> " + jr.stationName
+                }
             }
-
+            
             enrichedHist.append(trans)
         }
         
