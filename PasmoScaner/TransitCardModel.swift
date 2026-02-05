@@ -25,7 +25,7 @@ final class TransitCardModel {
     var isScanning = false
     var errorMessage: String?
     
-    private let session = AsyncFeliCaSession()
+    private let session = TransitSession()
     private let felicaDecoder = FelicaDecoder()
     
     init() {

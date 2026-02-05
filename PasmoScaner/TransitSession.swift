@@ -7,7 +7,7 @@
 import CoreNFC
 
 
-final class AsyncFeliCaSession: NSObject, NFCTagReaderSessionDelegate {
+final class TransitSession: NSObject, NFCTagReaderSessionDelegate {
 
     private var session: NFCTagReaderSession?
     private var continuation: CheckedContinuation<NFCFeliCaTag, Error>?
