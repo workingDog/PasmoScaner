@@ -25,14 +25,14 @@ final class TransitCardModel {
     var isScanning = false
     var errorMessage: String?
     
-    private let session = TransitSession()
+    private let session = ReaderSession()
     private let felicaDecoder = FelicaDecoder()
     
     init() {
         self.stationCodes = getStationCodes()
     }
     
-    func getStationCodes() -> [StationCode] {
+    private func getStationCodes() -> [StationCode] {
         do {
             let path = Bundle.main.path(forResource: "stationcodes", ofType: "json")!
             let fileURL = URL(fileURLWithPath: path)
@@ -66,7 +66,7 @@ final class TransitCardModel {
         errorMessage = nil
     }
     
-    func readBalance(from card: NFCFeliCaTag) async throws -> Int {
+    private func readBalance(from card: NFCFeliCaTag) async throws -> Int {
         let serviceCode: UInt16 = 0x008B
         let serviceCodeList = [
             Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])
@@ -87,7 +87,7 @@ final class TransitCardModel {
         return balance
     }
     
-    func readHistory(from card: NFCFeliCaTag, count: Int) async throws -> [FelicaTransaction] {
+    private func readHistory(from card: NFCFeliCaTag, count: Int) async throws -> [FelicaTransaction] {
         let serviceCode: UInt16 = 0x090F
         let serviceCodeList = [Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])]
         let blockList = (0..<count).map {

@@ -1,5 +1,5 @@
 //
-//  TransitSession.swift
+//  ReaderSession.swift
 //  PasmoScaner
 //
 //  Created by Ringo Wathelet on 2026/02/04.
@@ -7,7 +7,7 @@
 import CoreNFC
 
 
-final class TransitSession: NSObject, NFCTagReaderSessionDelegate {
+final class ReaderSession: NSObject, NFCTagReaderSessionDelegate {
 
     private var session: NFCTagReaderSession?
     private var continuation: CheckedContinuation<NFCFeliCaTag, Error>?
