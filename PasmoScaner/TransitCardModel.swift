@@ -18,12 +18,12 @@ enum NFCError: Error {
 final class TransitCardModel {
     
     var stationCodes: [StationCode] = []
-
+    
     var isScanning = false
     var balance: Int?
     var history: [FelicaTransaction] = []
     var errorMessage: String?
-
+    
     private let session = AsyncFeliCaSession()
     private let felicaDecoder = FelicaDecoder()
     
@@ -33,7 +33,7 @@ final class TransitCardModel {
     
     func getStationCodes() -> [StationCode] {
         do {
-            let path = Bundle.main.path(forResource: "stationcodes2", ofType: "json")!
+            let path = Bundle.main.path(forResource: "stationcodes", ofType: "json")!
             let fileURL = URL(fileURLWithPath: path)
             let data = try Data(contentsOf: fileURL, options: .mappedIfSafe)
             return try JSONDecoder().decode([StationCode].self, from: data)
@@ -42,7 +42,7 @@ final class TransitCardModel {
         }
         return []
     }
-
+    
     @MainActor
     func scan() async {
         isScanning = true
@@ -64,35 +64,28 @@ final class TransitCardModel {
         history = []
         errorMessage = nil
     }
-
+    
     func readBalance(from tag: NFCFeliCaTag) async throws -> Int {
-
         let serviceCode: UInt16 = 0x008B
-
         let serviceCodeList = [
             Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])
         ]
-
         let blockList = [ Data([0x80, 0x00]) ]
-
         let (sf1, sf2, blocks) = try await tag.readWithoutEncryption(
             serviceCodeList: serviceCodeList,
             blockList: blockList
         )
-
         guard sf1 == 0x00, sf2 == 0x00 else {
             throw NFCError.readFailed
         }
-
         guard let block = blocks.first, block.count == 16 else {
             throw NFCError.invalidBlock
         }
-
         // PASMO/Suica balance = bytes 11–12 (little-endian)
         let balance = Int(block[11]) | (Int(block[12]) << 8)
         return balance
     }
-
+    
     func readHistory(from tag: NFCFeliCaTag, count: Int) async throws -> [FelicaTransaction] {
         let serviceCode: UInt16 = 0x090F
         let serviceCodeList = [Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])]
@@ -113,24 +106,21 @@ final class TransitCardModel {
             let felicaTrans = felicaDecoder.decodeTransaction(from: block)
             return felicaTrans
         }
-
-        return updatedHist(hist.reversed())
+        
+        return updatedHistory(hist)
     }
     
-    func updatedHist(_ hist: [FelicaTransaction]) -> [FelicaTransaction] {
+    func updatedHistory(_ hist: [FelicaTransaction]) -> [FelicaTransaction] {
         var enrichedHist: [FelicaTransaction] = []
         var hasOpenEntry = false
-
-        for var trans in hist {
-
+        
+        for var trans in hist.reversed() {
             // Ignore non-railway records
             guard trans.station != nil else {
                 enrichedHist.append(trans)
                 continue
             }
-
             let isExit: Bool
-
             if !hasOpenEntry {
                 // Not currently in a trip → this must be entry
                 isExit = false
@@ -140,9 +130,7 @@ final class TransitCardModel {
                 isExit = true
                 hasOpenEntry = false
             }
-            
             trans.event = isExit ? TransitEvent.exit : TransitEvent.entry
-            
             if let station = trans.station,
                let jr = stationCodes.first(where: {
                    $0.areaCode == station.areaCode &&
@@ -150,11 +138,10 @@ final class TransitCardModel {
                }) {
                 trans.station?.stationName = jr.stationName
             }
-            
             enrichedHist.append(trans)
         }
         
         return enrichedHist.reversed()
     }
-
+    
 }

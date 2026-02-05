@@ -9,14 +9,7 @@ import Foundation
 import CoreNFC
 
 
-
-
 struct FelicaDecoder {
-    
-    func decodeHistoryAmount(from block: Data) -> Int {
-        let raw = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
-        return Int(raw)
-    }
     
     func decodeHistoryDate(from block: Data) -> Date? {
         guard block.count >= 6 else { return nil }
@@ -37,6 +30,7 @@ struct FelicaDecoder {
         )
     }
     
+    // for testing
     func dumpBlock(_ block: Data, label: String) {
         let hex = block.map { String(format: "%02X", $0) }.joined(separator: " ")
         print("\(label): \(hex)")
@@ -44,11 +38,9 @@ struct FelicaDecoder {
 
     func decodeTransaction(from block: Data) -> FelicaTransaction {
         let type = block[1]
-        
-        let date = decodeHistoryDate(from: block)!
-        
+        let dateData = decodeHistoryDate(from: block)
+        let date = dateData != nil ? dateData! : Date()
         let station = CardStation(areaCode: Int(block[3]), lineCode: Int(block[4]), stationCode: Int(block[5]))
-  
         let balanceI16 = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
         let balance = Int(balanceI16)
         
@@ -78,7 +70,7 @@ struct CardStation {
     var stationName: String = ""
 }
 
-// for file stationcodes2.json
+// for file stationcodes.json
 struct StationCode: Identifiable, Codable {
     let id = UUID()
     
@@ -108,23 +100,5 @@ struct StationCode: Identifiable, Codable {
         self.line = try container.decode(String.self, forKey: .line)
         self.stationName = try container.decode(String.self, forKey: .stationName)
     }
-
-    // for file stationcodes.json
-//    struct StationCode2: Identifiable, Codable {
-//        let id = UUID()
-//        
-//        var areaCode, lineCode, stationCode: Int?
-//        var company, line, stationName: String
-//
-//        enum CodingKeys: String, CodingKey {
-//            case areaCode = "RegionCode"
-//            case lineCode = "LineCode"
-//            case stationCode = "StationCode"
-//            
-//            case company = "Company"
-//            case line = "Line"
-//            case stationName = "StationName"
-//        }
-//    }
 
 }
