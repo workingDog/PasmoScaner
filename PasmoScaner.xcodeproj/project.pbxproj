@@ -8,11 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		C70028F22F32E10300CF5532 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C70028F12F32E10300CF5532 /* README.md */; };
+		C763A9C52F341D43001FF1C6 /* temp9.swift in Sources */ = {isa = PBXBuildFile; fileRef = C763A9C42F341D3E001FF1C6 /* temp9.swift */; };
+		C763A9C72F341DFA001FF1C6 /* stationcodes2.json in Resources */ = {isa = PBXBuildFile; fileRef = C763A9C62F341DFA001FF1C6 /* stationcodes2.json */; };
+		C763A9C92F341F56001FF1C6 /* temp8.swift in Sources */ = {isa = PBXBuildFile; fileRef = C763A9C82F341F52001FF1C6 /* temp8.swift */; };
 		C795B4562F34029300D9D342 /* stationcodes.json in Resources */ = {isa = PBXBuildFile; fileRef = C795B4552F34029300D9D342 /* stationcodes.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C70028F12F32E10300CF5532 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C763A9C42F341D3E001FF1C6 /* temp9.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = temp9.swift; sourceTree = "<group>"; };
+		C763A9C62F341DFA001FF1C6 /* stationcodes2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = stationcodes2.json; sourceTree = "<group>"; };
+		C763A9C82F341F52001FF1C6 /* temp8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = temp8.swift; sourceTree = "<group>"; };
 		C795B4552F34029300D9D342 /* stationcodes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = stationcodes.json; sourceTree = "<group>"; };
 		C7A8981F2F32D60D00AA941C /* PasmoScaner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PasmoScaner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -52,6 +58,9 @@
 		C7A898162F32D60D00AA941C = {
 			isa = PBXGroup;
 			children = (
+				C763A9C82F341F52001FF1C6 /* temp8.swift */,
+				C763A9C62F341DFA001FF1C6 /* stationcodes2.json */,
+				C763A9C42F341D3E001FF1C6 /* temp9.swift */,
 				C795B4552F34029300D9D342 /* stationcodes.json */,
 				C70028F12F32E10300CF5532 /* README.md */,
 				C7A898212F32D60D00AA941C /* PasmoScaner */,
@@ -131,6 +140,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C763A9C72F341DFA001FF1C6 /* stationcodes2.json in Resources */,
 				C795B4562F34029300D9D342 /* stationcodes.json in Resources */,
 				C70028F22F32E10300CF5532 /* README.md in Resources */,
 			);
@@ -143,6 +153,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C763A9C92F341F56001FF1C6 /* temp8.swift in Sources */,
+				C763A9C52F341D43001FF1C6 /* temp9.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

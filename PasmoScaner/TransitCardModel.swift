@@ -33,7 +33,7 @@ final class TransitCardModel {
     
     func getStationCodes() -> [StationCode] {
         do {
-            let path = Bundle.main.path(forResource: "stationcodes", ofType: "json")!
+            let path = Bundle.main.path(forResource: "stationcodes2", ofType: "json")!
             let fileURL = URL(fileURLWithPath: path)
             let data = try Data(contentsOf: fileURL, options: .mappedIfSafe)
             return try JSONDecoder().decode([StationCode].self, from: data)
