@@ -13,14 +13,14 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-
+            
             Image(systemName: "wave.3.right")
                 .font(.system(size: 44))
                 .foregroundStyle(.blue)
             
             Text("Hold your PASMO near the top of iPhone")
                 .font(.headline)
-
+            
             Button("Scan") {
                 Task {
                     cardModel.clear()
@@ -42,17 +42,6 @@ struct ContentView: View {
                             Spacer()
                             Text(item.date.formatted(date: .numeric, time: .omitted))
                         }
-                        HStack {
-                            if item.event == .exit {
-                                Text("\(item.station?.stationName ?? "")")
-                                Image(systemName: "figure.walk.departure")
-                                    .foregroundStyle(Color.blue)
-                            } else {
-                                Image(systemName: "figure.walk.departure")
-                                    .foregroundStyle(Color.blue)
-                                Text("\(item.station?.stationName ?? "")")
-                            }
-                        }
                     }
                 }
             }
@@ -63,5 +52,5 @@ struct ContentView: View {
         }
         .padding()
     }
- 
+    
 }

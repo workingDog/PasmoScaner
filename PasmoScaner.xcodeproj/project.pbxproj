@@ -8,12 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		C70028F22F32E10300CF5532 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C70028F12F32E10300CF5532 /* README.md */; };
-		C763A9C72F341DFA001FF1C6 /* stationcodes.json in Resources */ = {isa = PBXBuildFile; fileRef = C763A9C62F341DFA001FF1C6 /* stationcodes.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C70028F12F32E10300CF5532 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		C763A9C62F341DFA001FF1C6 /* stationcodes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = stationcodes.json; sourceTree = "<group>"; };
 		C7A8981F2F32D60D00AA941C /* PasmoScaner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PasmoScaner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -52,7 +50,6 @@
 		C7A898162F32D60D00AA941C = {
 			isa = PBXGroup;
 			children = (
-				C763A9C62F341DFA001FF1C6 /* stationcodes.json */,
 				C70028F12F32E10300CF5532 /* README.md */,
 				C7A898212F32D60D00AA941C /* PasmoScaner */,
 				C7A898202F32D60D00AA941C /* Products */,
@@ -131,7 +128,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C763A9C72F341DFA001FF1C6 /* stationcodes.json in Resources */,
 				C70028F22F32E10300CF5532 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

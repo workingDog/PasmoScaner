@@ -68,4 +68,5 @@ struct CardStation {
     var lineCode: Int
     var stationCode: Int
     var stationName: String = ""
+    var romanjiName: String?
 }
