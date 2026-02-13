@@ -42,6 +42,8 @@ struct ContentView: View {
                             Spacer()
                             Text(item.date.formatted(date: .numeric, time: .omitted))
                         }
+                        Label(item.type.title, systemImage: item.type.systemImage)
+          //              Label(item.machineType.title, systemImage: item.machineType.systemImage)
                     }
                 }
             }

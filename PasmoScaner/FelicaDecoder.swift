@@ -37,36 +37,64 @@ struct FelicaDecoder {
     }
 
     func decodeTransaction(from block: Data) -> FelicaTransaction {
-        let type = block[1]
-        let dateData = decodeHistoryDate(from: block)
-        let date = dateData != nil ? dateData! : Date()
-        let station = CardStation(areaCode: Int(block[3]), lineCode: Int(block[4]), stationCode: Int(block[5]))
+        let machine = FelicaMachineType(raw: block[0])
+        let process = FelicaProcessType(raw: block[1])
+        let date = decodeHistoryDate(from: block) ?? Date()
         let balanceI16 = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
         let balance = Int(balanceI16)
         
-        return FelicaTransaction(date: date, type: type, station: station, balance: balance)
+        let kind = decodeTransactionKind(from: block)
+        
+        return FelicaTransaction(
+            date: date,
+            machineType: machine,
+            type: process,
+            kind: kind,
+            balance: balance
+        )
+    }
+    
+    func decodeTransactionKind(from block: Data) -> FelicaTransactionKind {
+        let machineType = FelicaMachineType(raw: block[0])
+
+        return switch machineType {
+            case .gate: decodeStation(from: block)
+            case .bus: decodeBus(from: block)
+            case .retail: handleRetail(from: block)
+            case .chargeMachine, .vendingMachine: handleCharge(from: block)
+            default: .unknown
+        }
+    }
+    
+    private func decodeStation(from block: Data) -> FelicaTransactionKind {
+        let area = Int(block[3])
+        let line = Int(block[4])
+        let station = Int(block[5])
+        let cardStation = CardStation(areaCode: area, lineCode: line, stationCode: station)
+        
+        return .train(station: cardStation)
+    }
+    
+    private func decodeBus(from block: Data) -> FelicaTransactionKind {
+        let operatorCode = Int(block[3])
+        let stopCode = Int(block[4])
+        let busStop = CardBusStop(operatorCode: operatorCode, stopCode: stopCode)
+        
+        return .bus(stop: busStop)
+    }
+    
+    private func handleRetail(from block: Data) -> FelicaTransactionKind {
+        let retail = RetailTransaction(terminalType: block[0])
+        
+        return .retail(retail)
+    }
+    
+    private func handleCharge(from block: Data) -> FelicaTransactionKind {
+        let balanceI16 = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
+        let balance = Int(balanceI16)
+        let charge = ChargeTransaction(amount: balance)
+        
+        return .charge(charge)
     }
  
-}
-
-struct FelicaTransaction: Identifiable {
-    let id = UUID()
-    var date: Date
-    var type: UInt8
-    var station: CardStation?
-    var balance: Int
-    var event: TransitEvent = .entry
-}
-
-enum TransitEvent: String, Codable {
-    case entry
-    case exit
-}
-
-struct CardStation {
-    var areaCode: Int
-    var lineCode: Int
-    var stationCode: Int
-    var stationName: String = ""
-    var romanjiName: String?
 }
