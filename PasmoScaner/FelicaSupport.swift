@@ -40,7 +40,7 @@ struct FelicaTransaction: Identifiable {
 extension FelicaTransaction {
     
     var descriptor: TransactionDescriptor {
-        let amount = signedAmount
+        let delta = signedAmount ?? 0
         
         return switch kind {
             
@@ -48,7 +48,7 @@ extension FelicaTransaction {
             case .train(let station):
                 TransactionDescriptor(
                     title: station.displayName,
-                    subtitle: "Train • Balance ¥\(balance)",
+                    subtitle: "Train fair ¥\(abs(delta))",
                     systemImage: "tram.fill",
                     color: .blue,
                     category: .transport,
@@ -59,7 +59,7 @@ extension FelicaTransaction {
             case .bus(let stop):
                 TransactionDescriptor(
                     title: stop.displayName,
-                    subtitle: "Bus • Balance ¥\(balance)",
+                    subtitle: "Bus fair ¥\(abs(delta))",
                     systemImage: "bus.fill",
                     color: .green,
                     category: .transport,
@@ -70,28 +70,28 @@ extension FelicaTransaction {
             case .retail:
                  TransactionDescriptor(
                     title: "Retail Purchase",
-                    subtitle: amount != nil ? "¥\(abs(amount!))" : "Retail",
+                    subtitle: "¥\(abs(delta))",
                     systemImage: "cart.fill",
                     color: .pink,
                     category: .shopping,
-                    amount: amount
+                    amount: delta
                 )
             
             // 💳 CHARGE
             case .charge:
                  TransactionDescriptor(
                     title: "Card Charge",
-                    subtitle: amount != nil ? "¥\(abs(amount!))" : "Charge",
+                    subtitle: "¥\(abs(delta))",
                     systemImage: "creditcard.fill",
                     color: .purple,
                     category: .charge,
-                    amount: amount
+                    amount: delta
                 )
             
             // ❓ UNKNOWN
             case .unknown(let raw):
                 TransactionDescriptor(
-                    title: "Unknown Transaction",
+                    title: "Unknown",
                     subtitle: "Type 0x\(String(format: "%02X", raw))",
                     systemImage: "questionmark.circle",
                     color: .gray,
@@ -108,7 +108,6 @@ extension FelicaTransaction {
    
 }
 
-
 enum TransitEvent: String, Codable {
     case entry
     case exit
@@ -118,7 +117,7 @@ struct CardStation: Identifiable, Hashable {
     let areaCode: Int
     let lineCode: Int
     let stationCode: Int
-    let stationName: String  = ""
+    var stationName: String  = ""
     let romanjiName: String?
 
     var id: String { "\(areaCode)-\(lineCode)-\(stationCode)" }
@@ -146,7 +145,7 @@ enum FelicaTransactionKind: Identifiable {
             case .bus(let stop): stop.displayName
             case .retail(let retail): retail.displayName
             case .charge(let charge): charge.displayName
-            case .unknown: "Unknown Transaction"
+            case .unknown: "Unknown"
         }
     }
 
@@ -187,7 +186,8 @@ struct CardBusStop: Identifiable, Hashable {
     let stopName: String?
 
     var id: String { "\(operatorCode)-\(stopCode)" }
-    var displayName: String { stopName ?? "Bus Stop \(stopCode)" }
+ //   var displayName: String { stopName ?? "Bus" }
+    var displayName: String { "" }
     var subtitle: String { "Operator \(operatorCode)" }
     var systemImage: String { "bus.fill" }
     var color: Color { .green }
@@ -231,7 +231,7 @@ enum FelicaProcessType: UInt8, CaseIterable, Identifiable {
     case unknown        = 0xFF   // internal fallback
 
     var id: UInt8 { rawValue }
-
+    
     init(raw: UInt8) {
         self = FelicaProcessType(rawValue: raw) ?? .unknown
     }
@@ -274,19 +274,6 @@ enum FelicaMachineType: Identifiable {
 
     var id: String { title }
 
-    init(raw: UInt8) {
-        switch raw {
-            case 0x03: self = .gate
-            case 0x05, 0xC7: self = .bus
-            case 0x07, 0x16: self = .vendingMachine
-            case 0x08, 0x1C: self = .chargeMachine
-            case 0x09, 0x1F: self = .retail
-            case 0x12: self = .mobile
-            case 0x17: self = .ticketOffice
-            default: self = .unknown(raw)
-        }
-    }
-
     var title: String {
         switch self {
             case .gate: "Ticket Gate"
@@ -310,6 +297,23 @@ enum FelicaMachineType: Identifiable {
             case .mobile: "iphone"
             case .ticketOffice: "person.fill"
             case .unknown: "questionmark.circle"
+        }
+    }
+
+    init(raw: UInt8) {
+        switch raw {
+            // 🚃 ALL KNOWN GATE TYPES
+            case 0x03, 0x16, 0x17: self = .gate
+            // 🚌 BUS
+            case 0x05, 0xC7: self = .bus
+            // 🎫 Ticket machines
+            case 0x07: self = .vendingMachine
+            // 💳 Charge machines
+            case 0x08, 0x1C: self = .chargeMachine
+            // 🛒 Retail
+            case 0x09, 0x1F: self = .retail
+            case 0x12: self = .mobile
+            default: self = .unknown(raw)
         }
     }
 }
