@@ -32,7 +32,7 @@ struct ContentView: View {
             
             if let balance = cardModel.balance {
                 Text("Balance: ¥\(balance)")
-            }
+            } 
             
             List(cardModel.history) { item in
                 HStack {
@@ -42,8 +42,15 @@ struct ContentView: View {
                             Spacer()
                             Text(item.date.formatted(date: .numeric, time: .omitted))
                         }
-                        Label(item.type.title, systemImage: item.type.systemImage)
-          //              Label(item.machineType.title, systemImage: item.machineType.systemImage)
+                        Label {
+                            VStack(alignment: .leading) {
+                                Text(item.descriptor.title)
+                                Text(item.descriptor.subtitle)
+                            }
+                        } icon: {
+                            Image(systemName: item.descriptor.systemImage)
+                                .foregroundStyle(item.descriptor.color)
+                        }
                     }
                 }
             }

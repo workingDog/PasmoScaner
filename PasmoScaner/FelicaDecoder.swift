@@ -48,7 +48,7 @@ struct FelicaDecoder {
         return FelicaTransaction(
             date: date,
             machineType: machine,
-            type: process,
+            processType: process,
             kind: kind,
             balance: balance
         )
@@ -62,7 +62,7 @@ struct FelicaDecoder {
             case .bus: decodeBus(from: block)
             case .retail: handleRetail(from: block)
             case .chargeMachine, .vendingMachine: handleCharge(from: block)
-            default: .unknown
+            default: .unknown(block[0])
         }
     }
     
@@ -70,7 +70,7 @@ struct FelicaDecoder {
         let area = Int(block[3])
         let line = Int(block[4])
         let station = Int(block[5])
-        let cardStation = CardStation(areaCode: area, lineCode: line, stationCode: station)
+        let cardStation = CardStation(areaCode: area, lineCode: line, stationCode: station, romanjiName: nil)
         
         return .train(station: cardStation)
     }
@@ -78,13 +78,14 @@ struct FelicaDecoder {
     private func decodeBus(from block: Data) -> FelicaTransactionKind {
         let operatorCode = Int(block[3])
         let stopCode = Int(block[4])
-        let busStop = CardBusStop(operatorCode: operatorCode, stopCode: stopCode)
+        let busStop = CardBusStop(operatorCode: operatorCode, stopCode: stopCode, stopName: nil)
         
         return .bus(stop: busStop)
     }
     
     private func handleRetail(from block: Data) -> FelicaTransactionKind {
-        let retail = RetailTransaction(terminalType: block[0])
+        let amount = Int(block[1]) == 0 ? nil : Int(block[1])
+        let retail = RetailTransaction(terminalType: block[0], amount: amount)
         
         return .retail(retail)
     }

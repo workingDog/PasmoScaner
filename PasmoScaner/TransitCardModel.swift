@@ -85,13 +85,18 @@ final class TransitCardModel {
             throw NFCError.readFailed
         }
         
-        return blocks.compactMap { block -> FelicaTransaction? in
+        var allTrans = blocks.compactMap { block -> FelicaTransaction? in
             guard block.count == 16 else { return nil }
             guard felicaDecoder.decodeHistoryDate(from: block) != nil else { return nil }
             let felicaTrans = felicaDecoder.decodeTransaction(from: block)
             return felicaTrans
         }
         
+        for i in 0..<allTrans.count - 1 {
+            allTrans[i].previousBalance = allTrans[i + 1].balance
+        }
+        
+        return allTrans
     }
     
 }
