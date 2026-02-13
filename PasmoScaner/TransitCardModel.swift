@@ -98,52 +98,41 @@ final class TransitCardModel {
         
         for i in 0..<allTrans.count {
             allTrans[i].kind = determineKind(for: allTrans[i])
+   //         print("----> trans: \(allTrans[i])\n")
         }
         
         return allTrans.dropLast()
     }
     
     func determineKind(for tx: FelicaTransaction) -> FelicaTransactionKind {
-        let delta = tx.signedAmount ?? 0
+ 
+        let txDelta = tx.delta ?? 0
 
         switch tx.machineType {
 
         // 🚃 TRAIN GATE
         case .gate:
             return .train(
-                station: tx.station ?? CardStation(
-                    areaCode: 0,
-                    lineCode: 0,
-                    stationCode: 0,
-                    stationName: "",
-                    romanjiName: nil
-                )
+                station: tx.station ?? CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil)
             )
 
         // 🚌 BUS
         case .bus:
             return .bus(
-                stop: CardBusStop(
-                    operatorCode: 0,
-                    stopCode: 0,
-                    stopName: nil
-                )
+                stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil)
             )
 
         // 🛒 RETAIL
         case .retail:
             return .retail(
-                RetailTransaction(
-                    terminalType: 0,
-                    amount: abs(delta)
-                )
+                RetailTransaction(terminalType: 0, amount: abs(txDelta))
             )
 
         // 💳 CHARGE MACHINE
         case .chargeMachine:
-            if delta > 0 {
+            if abs(txDelta) > 0 {
                 return .charge(
-                    ChargeTransaction(amount: delta)
+                    ChargeTransaction(amount: txDelta)
                 )
             }
 

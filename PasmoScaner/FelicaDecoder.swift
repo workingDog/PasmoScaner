@@ -37,8 +37,12 @@ struct FelicaDecoder {
     }
 
     func decodeTransaction(from block: Data) -> FelicaTransaction {
+        
+    //    print(block.map { String(format:"%02X", $0) }.joined(separator: " "))
+        
         let machine = FelicaMachineType(raw: block[0])
         let process = FelicaProcessType(raw: block[1])
+        
         let date = decodeHistoryDate(from: block) ?? Date()
         let balanceI16 = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
         let balance = Int(balanceI16)

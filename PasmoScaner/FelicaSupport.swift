@@ -28,9 +28,11 @@ enum TransactionCategory {
 struct FelicaTransaction: Identifiable {
     let id = UUID()
     var date: Date
+    
     var machineType: FelicaMachineType
     var processType: FelicaProcessType
     var kind: FelicaTransactionKind
+    
     var station: CardStation?
     var balance: Int
     var previousBalance: Int?
@@ -40,7 +42,7 @@ struct FelicaTransaction: Identifiable {
 extension FelicaTransaction {
     
     var descriptor: TransactionDescriptor {
-        let delta = signedAmount ?? 0
+        let delta = delta ?? 0
         
         return switch kind {
             
@@ -101,7 +103,7 @@ extension FelicaTransaction {
         }
     }
     
-    var signedAmount: Int? {
+    var delta: Int? {
         guard let previous = previousBalance else { return nil }
         return balance - previous
     }
@@ -187,7 +189,7 @@ struct CardBusStop: Identifiable, Hashable {
 
     var id: String { "\(operatorCode)-\(stopCode)" }
  //   var displayName: String { stopName ?? "Bus" }
-    var displayName: String { "" }
+    var displayName: String { "Bus" }
     var subtitle: String { "Operator \(operatorCode)" }
     var systemImage: String { "bus.fill" }
     var color: Color { .green }
@@ -305,11 +307,11 @@ enum FelicaMachineType: Identifiable {
             // 🚃 ALL KNOWN GATE TYPES
             case 0x03, 0x16, 0x17: self = .gate
             // 🚌 BUS
-            case 0x05, 0xC7: self = .bus
+            case 0x05: self = .bus
             // 🎫 Ticket machines
             case 0x07: self = .vendingMachine
             // 💳 Charge machines
-            case 0x08, 0x1C: self = .chargeMachine
+            case 0x08, 0x1C, 0xC7: self = .chargeMachine
             // 🛒 Retail
             case 0x09, 0x1F: self = .retail
             case 0x12: self = .mobile
