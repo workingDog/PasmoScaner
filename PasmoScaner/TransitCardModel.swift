@@ -35,7 +35,7 @@ final class TransitCardModel {
         do {
             let card = try await session.scan()
             balance = try await readBalance(from: card)
-            history = try await readHistory(from: card, count: 10)
+            history = try await readHistory(from: card, count: 11)
             session.invalidate()
         } catch {
             errorMessage = error.localizedDescription
@@ -100,7 +100,7 @@ final class TransitCardModel {
             allTrans[i].kind = determineKind(for: allTrans[i])
         }
         
-        return allTrans
+        return allTrans.dropLast()
     }
     
     func determineKind(for tx: FelicaTransaction) -> FelicaTransactionKind {
