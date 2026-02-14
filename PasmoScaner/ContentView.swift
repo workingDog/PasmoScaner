@@ -21,21 +21,24 @@ struct ContentView: View {
                 }
             } label: {
                 ZStack(alignment: .top) {
+  
                     Image("nekochan")
                         .resizable()
-                        .frame(height: 250)
+                        .scaledToFill()
+                        .frame(height: 270)
                         .frame(maxWidth: .infinity)
-                        .scaledToFit()
-                    
+
                     Text("SCAN")
                         .font(.largeTitle.bold())
                         .foregroundStyle(.blue)
                         .padding(.top, 5)
                         .shadow(radius: 5)
                 }
+                .frame(height: 270)
+                .clipShape(.rect(cornerRadius: 25))
             }
             .buttonStyle(.plain)
-            
+
             Spacer()
             
             if let balance = cardModel.balance {
@@ -67,6 +70,7 @@ struct ContentView: View {
                 Text(error).foregroundColor(.red)
             }
         }
+
     }
     
 }
