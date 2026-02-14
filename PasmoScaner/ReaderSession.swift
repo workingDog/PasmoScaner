@@ -16,7 +16,7 @@ final class ReaderSession: NSObject, NFCTagReaderSessionDelegate {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
             session = NFCTagReaderSession(pollingOption: .iso18092, delegate: self)
-            session?.alertMessage = "Tap iPhone to PASMO"
+            session?.alertMessage = "Tap PASMO on Neko"
             session?.begin()
         }
     }
