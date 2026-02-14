@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		C70028F22F32E10300CF5532 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C70028F12F32E10300CF5532 /* README.md */; };
+		C7658B602F41429F006D252B /* picture1.png in Resources */ = {isa = PBXBuildFile; fileRef = C7658B5F2F41429F006D252B /* picture1.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C70028F12F32E10300CF5532 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C7658B5F2F41429F006D252B /* picture1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = picture1.png; sourceTree = "<group>"; };
 		C7A8981F2F32D60D00AA941C /* PasmoScaner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PasmoScaner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -50,6 +52,7 @@
 		C7A898162F32D60D00AA941C = {
 			isa = PBXGroup;
 			children = (
+				C7658B5F2F41429F006D252B /* picture1.png */,
 				C70028F12F32E10300CF5532 /* README.md */,
 				C7A898212F32D60D00AA941C /* PasmoScaner */,
 				C7A898202F32D60D00AA941C /* Products */,
@@ -128,6 +131,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C7658B602F41429F006D252B /* picture1.png in Resources */,
 				C70028F22F32E10300CF5532 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
