@@ -82,7 +82,7 @@ extension FelicaTransaction {
             // 💳 CHARGE
             case .charge:
                  TransactionDescriptor(
-                    title: "Card Charge",
+                    title: "Card",
                     subtitle: "¥\(abs(delta))",
                     systemImage: "creditcard.fill",
                     color: .purple,
@@ -216,7 +216,7 @@ struct ChargeTransaction: Identifiable, Hashable {
     let amount: Int
 
     var id: UUID = UUID()
-    var displayName: String { "Card Charge" }
+    var displayName: String { "Card" }
     var subtitle: String { "¥\(amount)" }
     var systemImage: String { "plus.circle.fill" }
     var color: Color { .purple }

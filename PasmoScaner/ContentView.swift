@@ -7,32 +7,41 @@
 import SwiftUI
 
 
-
 struct ContentView: View {
     @State private var cardModel = TransitCardModel()
     
     var body: some View {
-        VStack(spacing: 16) {
+        
+        VStack(spacing: 5) {
             
-            Image(systemName: "wave.3.right")
-                .font(.system(size: 44))
-                .foregroundStyle(.blue)
-            
-            Text("Hold your PASMO near the top of iPhone")
-                .font(.headline)
-            
-            Button("Scan") {
+            Button {
                 Task {
                     cardModel.clear()
                     await cardModel.scan()
                 }
-            }.buttonStyle(.borderedProminent)
+            } label: {
+                ZStack(alignment: .top) {
+                    Image("nekochan")
+                        .resizable()
+                        .frame(height: 250)
+                        .frame(maxWidth: .infinity)
+                        .scaledToFit()
+                        .clipped()
+                    
+                    Text("SCAN")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.blue)
+                        .padding(.top, 5)
+                        .shadow(radius: 5)
+                }
+            }
+            .buttonStyle(.plain)
             
             Spacer()
             
             if let balance = cardModel.balance {
                 Text("Balance: ¥\(balance)")
-            } 
+            }
             
             List(cardModel.history) { item in
                 HStack {
@@ -59,7 +68,6 @@ struct ContentView: View {
                 Text(error).foregroundColor(.red)
             }
         }
-        .padding()
     }
     
 }
