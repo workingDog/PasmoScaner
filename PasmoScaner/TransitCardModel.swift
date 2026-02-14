@@ -98,13 +98,116 @@ final class TransitCardModel {
         
         for i in 0..<allTrans.count {
             allTrans[i].kind = determineKind(for: allTrans[i])
-   //         print("----> trans: \(allTrans[i])\n")
         }
+        
+//        for i in 0..<3 {
+//            print("----> trans: \(allTrans[i])\n")
+//          //  print("----> kind: \(allTrans[i].kind)\n")
+//        }
         
         return allTrans.dropLast()
     }
     
+    // need to redo this, very brittle  <-----
     func determineKind(for tx: FelicaTransaction) -> FelicaTransactionKind {
+
+        let txDelta = tx.delta ?? 0
+
+        switch (tx.processType, tx.machineType) {
+
+        // 🚃 Train gate
+        case (.farePayment, .gate):
+            return .train(
+                station: tx.station ?? CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil)
+            )
+
+        // 🚌 Bus
+        case (.busFare, _),
+             (.farePayment, .bus):
+            return .bus(
+                stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil)
+            )
+
+        // 💳 Charge anywhere
+        case (.charge, _):
+            return .charge(
+                ChargeTransaction(amount: abs(txDelta))
+            )
+
+        // 🛒 Retail purchase
+        case (.retail, _):
+            return .retail(
+                RetailTransaction(terminalType: 0, amount: abs(txDelta))
+            )
+
+        // 🎫 Ticket purchase
+        case (.ticketPurchase, _):
+            return .retail(
+                RetailTransaction(terminalType: 0, amount: abs(txDelta))
+            )
+
+        // 🔧 Adjustment
+        case (.adjustment, _):
+            return .retail(
+                RetailTransaction(terminalType: 0, amount: abs(txDelta))
+            )
+
+        default:
+            return determineMachineType(for: tx)  // <----
+        }
+    }
+    
+    
+    func determineProcessType(for tx: FelicaTransaction) -> FelicaTransactionKind {
+
+        let txDelta = tx.delta ?? 0
+        let process = tx.processType
+
+        switch process {
+
+        // 🚃 Train fare (gate)
+        case .farePayment:
+            return .train(
+                station: tx.station ??
+                    CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil)
+            )
+
+        // 🚌 Bus
+        case .busFare:
+            return .bus(
+                stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil)
+            )
+
+        // 💳 Charge
+        case .charge:
+            return .charge(
+                ChargeTransaction(amount: txDelta)
+            )
+
+        // 🛒 Retail purchase
+        case .retail:
+            return .retail(
+                RetailTransaction(terminalType: 0, amount: abs(txDelta))
+            )
+
+        // 🎫 Ticket purchase
+        case .ticketPurchase:
+            return .retail(
+                RetailTransaction(terminalType: 0, amount: abs(txDelta))
+            )
+
+        // 🔧 Adjustment
+        case .adjustment:
+            return .retail(
+                RetailTransaction(terminalType: 0, amount: abs(txDelta))
+            )
+
+        case .unknown:
+            return .unknown(process.rawValue)
+        }
+    }
+    
+    func determineMachineType(for tx: FelicaTransaction) -> FelicaTransactionKind {
  
         let txDelta = tx.delta ?? 0
 
@@ -137,7 +240,7 @@ final class TransitCardModel {
             }
 
         default:
-            break
+            return determineProcessType(for: tx)  // <----
         }
 
         return .unknown(tx.processType.rawValue)
