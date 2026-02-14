@@ -26,7 +26,6 @@ struct ContentView: View {
                         .frame(height: 250)
                         .frame(maxWidth: .infinity)
                         .scaledToFit()
-                        .clipped()
                     
                     Text("SCAN")
                         .font(.largeTitle.bold())
