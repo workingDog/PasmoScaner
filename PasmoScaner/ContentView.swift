@@ -21,7 +21,6 @@ struct ContentView: View {
                 }
             } label: {
                 ZStack(alignment: .top) {
-  
                     Image("nekochan")
                         .resizable()
                         .scaledToFill()
@@ -32,10 +31,9 @@ struct ContentView: View {
                         .font(.largeTitle.bold())
                         .foregroundStyle(.blue)
                         .padding(.top, 5)
-                        .shadow(radius: 5)
                 }
                 .frame(height: 270)
-                .clipShape(.rect(cornerRadius: 25))
+                .clipShape(.rect(cornerRadius: 30))
             }
             .buttonStyle(.plain)
 
