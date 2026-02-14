@@ -217,7 +217,7 @@ struct ChargeTransaction: Identifiable, Hashable {
 
     var id: UUID = UUID()
     var displayName: String { "Card Charge" }
-    var subtitle: String { "Added ¥\(amount)" }
+    var subtitle: String { "¥\(amount)" }
     var systemImage: String { "plus.circle.fill" }
     var color: Color { .purple }
 }

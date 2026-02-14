@@ -100,9 +100,12 @@ final class TransitCardModel {
             allTrans[i].kind = determineKind(for: allTrans[i])
         }
         
+//        print()
 //        for i in 0..<3 {
-//            print("----> trans: \(allTrans[i])\n")
-//          //  print("----> kind: \(allTrans[i].kind)\n")
+//          //  print("----> trans: \(allTrans[i])\n")
+//            print("----> kind: \(allTrans[i].kind)")
+//            print("----> machine: \(allTrans[i].machineType)")
+//            print("----> process: \(allTrans[i].processType)\n")
 //        }
         
         return allTrans.dropLast()
@@ -245,5 +248,5 @@ final class TransitCardModel {
 
         return .unknown(tx.processType.rawValue)
     }
-    
+
 }

@@ -39,7 +39,7 @@ struct FelicaDecoder {
     func decodeTransaction(from block: Data) -> FelicaTransaction {
         
     //    print(block.map { String(format:"%02X", $0) }.joined(separator: " "))
-        
+   
         let machine = FelicaMachineType(raw: block[0])
         let process = FelicaProcessType(raw: block[1])
         
@@ -55,19 +55,7 @@ struct FelicaDecoder {
             balance: balance
         )
     }
-    
-    func decodeTransactionKind(from block: Data) -> FelicaTransactionKind {
-        let machineType = FelicaMachineType(raw: block[0])
 
-        return switch machineType {
-            case .gate: decodeStation(from: block)
-            case .bus: decodeBus(from: block)
-            case .retail: handleRetail(from: block)
-            case .chargeMachine, .vendingMachine: handleCharge(from: block)
-            default: .unknown(block[0])
-        }
-    }
-    
     private func decodeStation(from block: Data) -> FelicaTransactionKind {
         let area = Int(block[3])
         let line = Int(block[4])
