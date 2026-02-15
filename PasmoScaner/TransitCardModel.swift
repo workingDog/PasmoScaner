@@ -118,45 +118,32 @@ final class TransitCardModel {
 
         switch (tx.processType, tx.machineType) {
 
-        // 🚃 Train gate
-        case (.farePayment, .gate):
-            return .train(
-                station: tx.station ?? CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil)
-            )
+            // 🚃 Train gate
+            case (.farePayment, .gate):
+                return .train(station: tx.station ?? CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil))
 
-        // 🚌 Bus
-        case (.busFare, _),
-             (.farePayment, .bus):
-            return .bus(
-                stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil)
-            )
+            // 🚌 Bus
+            case (.busFare, _), (.farePayment, .bus):
+                return .bus(stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil))
 
-        // 💳 Charge anywhere
-        case (.charge, _):
-            return .charge(
-                ChargeTransaction(amount: abs(txDelta))
-            )
+            // 💳 Charge anywhere
+            case (.charge, _):
+                return .charge(ChargeTransaction(amount: abs(txDelta)))
 
-        // 🛒 Retail purchase
-        case (.retail, _):
-            return .retail(
-                RetailTransaction(terminalType: 0, amount: abs(txDelta))
-            )
+            // 🛒 Retail purchase
+            case (.retail, _):
+                return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
 
-        // 🎫 Ticket purchase
-        case (.ticketPurchase, _):
-            return .retail(
-                RetailTransaction(terminalType: 0, amount: abs(txDelta))
-            )
+            // 🎫 Ticket purchase
+            case (.ticketPurchase, _):
+                return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
 
-        // 🔧 Adjustment
-        case (.adjustment, _):
-            return .retail(
-                RetailTransaction(terminalType: 0, amount: abs(txDelta))
-            )
+            // 🔧 Adjustment
+            case (.adjustment, _):
+                return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
 
-        default:
-            return determineMachineType(for: tx)  // <----
+            default:
+                return determineMachineType(for: tx)  // <----
         }
     }
     
