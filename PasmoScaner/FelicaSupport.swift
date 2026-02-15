@@ -75,7 +75,7 @@ extension FelicaTransaction {
             // 🛒 RETAIL
             case .retail:
                  TransactionDescriptor(
-                    title: "Retail",
+                    title: "Shop",
                     subtitle: "¥\(abs(delta))",
                     systemImage: "cart.fill",
                     color: .pink,
@@ -205,7 +205,7 @@ struct RetailTransaction: Identifiable, Hashable {
 
     var id: UUID = UUID()
 
-    var displayName: String { "Retail" }
+    var displayName: String { "Shop" }
     var systemImage: String { "cart.fill" }
     var color: Color { .pink }
     var subtitle: String {
@@ -269,7 +269,7 @@ enum FelicaProcessType: UInt8, CaseIterable, Identifiable {
             case .ticketPurchase: "Ticket Purchase"
             case .adjustment: "Fare Adjustment"
             case .busFare: "Bus Fare"
-            case .retail: "Retail"
+            case .retail: "Shop"
             case .unknown: "Unknown"
         }
     }
@@ -306,7 +306,7 @@ enum FelicaMachineType: Identifiable {
             case .bus: "Bus Reader"
             case .vendingMachine: "Ticket Machine"
             case .chargeMachine: "Charge Machine"
-            case .retail: "Retail Terminal"
+            case .retail: "Shop Terminal"
             case .mobile: "Mobile Device"
             case .ticketOffice: "Ticket Office"
             case .unknown(let raw): "Unknown (0x\(String(format: "%02X", raw)))"
