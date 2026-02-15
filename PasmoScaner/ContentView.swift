@@ -40,7 +40,8 @@ struct ContentView: View {
             Spacer()
             
             if let balance = cardModel.balance {
-                Text("Balance: ¥\(balance)")
+              //  Text("Balance: ¥\(balance)")
+                Text("balance_format \(balance, format: .currency(code: Locale.current.currency?.identifier ?? "JPY"))")
             }
             
             List(cardModel.history) { item in

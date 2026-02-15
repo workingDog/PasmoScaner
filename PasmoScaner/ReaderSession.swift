@@ -16,7 +16,7 @@ final class ReaderSession: NSObject, NFCTagReaderSessionDelegate {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
             session = NFCTagReaderSession(pollingOption: .iso18092, delegate: self)
-            session?.alertMessage = "Tap PASMO on Neko"
+            session?.alertMessage = String(localized: "TAPPASMO")
             session?.begin()
         }
     }
@@ -32,23 +32,31 @@ final class ReaderSession: NSObject, NFCTagReaderSessionDelegate {
     func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {}
 
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        continuation?.resume(throwing: error)
-        continuation = nil
+        finish(with: .failure(error))
     }
 
     func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
         guard let tag = tags.first,
               case let .feliCa(feliCa) = tag else {
-            session.invalidate(errorMessage: "Not a FeliCa card")
+            finish(with: .failure(NSError(domain: "NotFeliCa", code: -1)))
+            session.invalidate()
             return
         }
         session.connect(to: tag) { error in
             if let error {
-                self.continuation?.resume(throwing: error)
+                self.finish(with: .failure(error))
             } else {
-                self.continuation?.resume(returning: feliCa)
+                self.finish(with: .success(feliCa))
             }
-            self.continuation = nil
+        }
+    }
+    
+    private func finish(with result: Result<NFCFeliCaTag, Error>) {
+        guard let continuation else { return }
+        self.continuation = nil
+        switch result {
+            case .success(let tag): continuation.resume(returning: tag)
+            case .failure(let error): continuation.resume(throwing: error)
         }
     }
    
