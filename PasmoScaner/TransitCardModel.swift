@@ -99,15 +99,7 @@ final class TransitCardModel {
         for i in 0..<allTrans.count {
             allTrans[i].kind = determineKind(for: allTrans[i])
         }
-        
-//        print()
-//        for i in 0..<3 {
-//          //  print("----> trans: \(allTrans[i])\n")
-//            print("----> kind: \(allTrans[i].kind)")
-//            print("----> machine: \(allTrans[i].machineType)")
-//            print("----> process: \(allTrans[i].processType)\n")
-//        }
-        
+ 
         return allTrans.dropLast()
     }
     
@@ -164,33 +156,23 @@ final class TransitCardModel {
 
         // 🚌 Bus
         case .busFare:
-            return .bus(
-                stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil)
-            )
+            return .bus(stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil))
 
         // 💳 Charge
         case .charge:
-            return .charge(
-                ChargeTransaction(amount: txDelta)
-            )
+            return .charge(ChargeTransaction(amount: txDelta))
 
         // 🛒 Retail purchase
         case .retail:
-            return .retail(
-                RetailTransaction(terminalType: 0, amount: abs(txDelta))
-            )
+            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
 
         // 🎫 Ticket purchase
         case .ticketPurchase:
-            return .retail(
-                RetailTransaction(terminalType: 0, amount: abs(txDelta))
-            )
+            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
 
         // 🔧 Adjustment
         case .adjustment:
-            return .retail(
-                RetailTransaction(terminalType: 0, amount: abs(txDelta))
-            )
+            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
 
         case .unknown:
             return .unknown(process.rawValue)
@@ -211,15 +193,11 @@ final class TransitCardModel {
 
         // 🚌 BUS
         case .bus:
-            return .bus(
-                stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil)
-            )
+            return .bus(stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil))
 
         // 🛒 RETAIL
         case .retail:
-            return .retail(
-                RetailTransaction(terminalType: 0, amount: abs(txDelta))
-            )
+            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
 
         // 💳 CHARGE MACHINE
         case .chargeMachine:

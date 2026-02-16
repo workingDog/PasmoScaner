@@ -98,7 +98,7 @@ extension FelicaTransaction {
             case .unknown(let raw):
                 TransactionDescriptor(
                     title: "Unknown",
-                    subtitle: "Type 0x\(String(format: "%02X", raw))",
+                    subtitle: "0x\(String(format: "%02X", raw))",
                     systemImage: "questionmark.circle",
                     color: .gray,
                     category: .unknown,
@@ -161,7 +161,7 @@ enum FelicaTransactionKind: Identifiable {
             case .bus(let stop): stop.subtitle
             case .retail(let retail): retail.subtitle
             case .charge(let charge): charge.subtitle
-            case .unknown(let raw): "Type 0x\(String(format: "%02X", raw))"
+            case .unknown(let raw): "Kind 0x\(String(format: "%02X", raw))"
         }
     }
 
