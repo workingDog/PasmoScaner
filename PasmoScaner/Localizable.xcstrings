@@ -42,13 +42,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap PASMO on Neko"
+            "value" : "Tap card on Neko"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "PASMOをNekoにタップ"
+            "value" : "ネコにカードをタップ"
           }
         }
       }
