@@ -42,6 +42,8 @@ final class TransitCardModel {
             session.invalidate(errorMessage: "Scan failed")
         }
         isScanning = false
+        
+        
     }
     
     func clear() {

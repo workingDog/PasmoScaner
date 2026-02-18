@@ -46,24 +46,33 @@ struct FelicaDecoder {
         let date = decodeHistoryDate(from: block) ?? Date()
         let balanceI16 = Int16(bitPattern: UInt16(block[11]) << 8 | UInt16(block[10]))
         let balance = Int(balanceI16)
+        let cardStation = decodeCardStation(from: block)
 
         return FelicaTransaction(
             date: date,
             machineType: machine,
             processType: process,
             kind: .unknown(block[1]),  // placeholder
+            station: cardStation,
             balance: balance
         )
     }
 
-    private func decodeStation(from block: Data) -> FelicaTransactionKind {
+    private func decodeCardStation(from block: Data) -> CardStation? {
         let area = Int(block[3])
         let line = Int(block[4])
         let station = Int(block[5])
-        let cardStation = CardStation(areaCode: area, lineCode: line, stationCode: station, romanjiName: nil)
-        
-        return .train(station: cardStation)
+        return CardStation(areaCode: area, lineCode: line, stationCode: station, romanjiName: nil)
     }
+
+//    private func decodeStation(from block: Data) -> FelicaTransactionKind {
+//        let area = Int(block[3])
+//        let line = Int(block[4])
+//        let station = Int(block[5])
+//        let cardStation = CardStation(areaCode: area, lineCode: line, stationCode: station, romanjiName: nil)
+//        
+//        return .train(station: cardStation)
+//    }
     
     private func decodeBus(from block: Data) -> FelicaTransactionKind {
         let operatorCode = Int(block[3])

@@ -119,18 +119,31 @@ enum TransitEvent: String, Codable {
     case exit
 }
 
-struct CardStation: Identifiable, Hashable {
-    let areaCode: Int
-    let lineCode: Int
-    let stationCode: Int
+struct CardStation: Identifiable, Hashable, Codable {
+    var areaCode: Int
+    var lineCode: Int
+    var stationCode: Int
+    
     var stationName: String  = ""
-    let romanjiName: String?
+    var company: String?
+    var lineName: String?
+    var romanjiName: String?
 
     var id: String { "\(areaCode)-\(lineCode)-\(stationCode)" }
     var displayName: String { romanjiName ?? stationName  }
     var subtitle: String { "Area \(areaCode) • Line \(lineCode)" }
     var systemImage: String { "tram.fill" }
     var color: Color { .blue }
+    
+    enum CodingKeys: String, CodingKey {
+        case areaCode = "RegionCode"
+        case lineCode = "LineCode"
+        case stationCode = "StationCode"
+        case stationName = "StationName"
+        case company = "Company"
+        case lineName = "Line"
+        case romanjiName
+    }
 }
 
 enum FelicaTransactionKind: Identifiable {
