@@ -1,5 +1,5 @@
 //
-//  FelicaSupport.swift
+//  FelicaModels.swift
 //  PasmoScaner
 //
 //  Created by Ringo Wathelet on 2026/02/13.

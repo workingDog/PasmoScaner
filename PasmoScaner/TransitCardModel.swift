@@ -34,16 +34,14 @@ final class TransitCardModel {
         errorMessage = nil
         do {
             let card = try await session.scan()
-            balance = try await readBalance(from: card)
-            history = try await readHistory(from: card, count: 11)
+            balance = try await felicaDecoder.readBalance(from: card)
+            history = try await felicaDecoder.readHistory(from: card, count: 11)
             session.invalidate()
         } catch {
             errorMessage = error.localizedDescription
             session.invalidate(errorMessage: "Scan failed")
         }
-        isScanning = false
-        
-        
+        isScanning = false    
     }
     
     func clear() {
@@ -52,168 +50,4 @@ final class TransitCardModel {
         errorMessage = nil
     }
     
-    private func readBalance(from card: NFCFeliCaTag) async throws -> Int {
-        let serviceCode: UInt16 = 0x008B
-        let serviceCodeList = [
-            Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])
-        ]
-        let blockList = [ Data([0x80, 0x00]) ]
-        let (sf1, sf2, blocks) = try await card.readWithoutEncryption(
-            serviceCodeList: serviceCodeList,
-            blockList: blockList
-        )
-        guard sf1 == 0x00, sf2 == 0x00 else {
-            throw NFCError.readFailed
-        }
-        guard let block = blocks.first, block.count == 16 else {
-            throw NFCError.invalidBlock
-        }
-        // PASMO/Suica balance = bytes 11–12 (little-endian)
-        let balance = Int(block[11]) | (Int(block[12]) << 8)
-        return balance
-    }
-    
-    private func readHistory(from card: NFCFeliCaTag, count: Int) async throws -> [FelicaTransaction] {
-        let serviceCode: UInt16 = 0x090F
-        let serviceCodeList = [Data([UInt8(serviceCode & 0xFF), UInt8(serviceCode >> 8)])]
-        let blockList = (0..<count).map {
-            Data([0x80, UInt8($0)])
-        }
-        let (sf1, sf2, blocks) = try await card.readWithoutEncryption(
-            serviceCodeList: serviceCodeList,
-            blockList: blockList
-        )
-        guard sf1 == 0x00, sf2 == 0x00 else {
-            throw NFCError.readFailed
-        }
-        
-        var allTrans = blocks.compactMap { block -> FelicaTransaction? in
-            guard block.count == 16 else { return nil }
-            guard felicaDecoder.decodeHistoryDate(from: block) != nil else { return nil }
-            let felicaTrans = felicaDecoder.decodeTransaction(from: block)
-            return felicaTrans
-        }
-        
-        for i in 0..<allTrans.count - 1 {
-            allTrans[i].previousBalance = allTrans[i + 1].balance
-        }
-        
-        for i in 0..<allTrans.count {
-            allTrans[i].kind = determineKind(for: allTrans[i])
-        }
- 
-        return allTrans.dropLast()
-    }
-    
-    // need to redo this, very brittle  <-----
-    func determineKind(for tx: FelicaTransaction) -> FelicaTransactionKind {
-
-        let txDelta = tx.delta ?? 0
-
-        switch (tx.processType, tx.machineType) {
-
-            // 🚃 Train gate
-            case (.farePayment, .gate):
-                return .train(station: tx.station ?? CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil))
-
-            // 🚌 Bus
-            case (.busFare, _), (.farePayment, .bus):
-                return .bus(stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil))
-
-            // 💳 Charge anywhere
-            case (.charge, _):
-                return .charge(ChargeTransaction(amount: abs(txDelta)))
-
-            // 🛒 Retail purchase
-            case (.retail, _):
-                return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
-
-            // 🎫 Ticket purchase
-            case (.ticketPurchase, _):
-                return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
-
-            // 🔧 Adjustment
-            case (.adjustment, _):
-                return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
-
-            default:
-                return determineMachineType(for: tx)  // <----
-        }
-    }
-    
-    
-    func determineProcessType(for tx: FelicaTransaction) -> FelicaTransactionKind {
-
-        let txDelta = tx.delta ?? 0
-        let process = tx.processType
-
-        switch process {
-
-        // 🚃 Train fare (gate)
-        case .farePayment:
-            return .train(
-                station: tx.station ??
-                    CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil)
-            )
-
-        // 🚌 Bus
-        case .busFare:
-            return .bus(stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil))
-
-        // 💳 Charge
-        case .charge:
-            return .charge(ChargeTransaction(amount: txDelta))
-
-        // 🛒 Retail purchase
-        case .retail:
-            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
-
-        // 🎫 Ticket purchase
-        case .ticketPurchase:
-            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
-
-        // 🔧 Adjustment
-        case .adjustment:
-            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
-
-        case .unknown:
-            return .unknown(process.rawValue)
-        }
-    }
-    
-    func determineMachineType(for tx: FelicaTransaction) -> FelicaTransactionKind {
- 
-        let txDelta = tx.delta ?? 0
-
-        switch tx.machineType {
-
-        // 🚃 TRAIN GATE
-        case .gate:
-            return .train(
-                station: tx.station ?? CardStation(areaCode: 0, lineCode: 0, stationCode: 0, stationName: "", romanjiName: nil)
-            )
-
-        // 🚌 BUS
-        case .bus:
-            return .bus(stop: CardBusStop(operatorCode: 0, stopCode: 0, stopName: nil))
-
-        // 🛒 RETAIL
-        case .retail:
-            return .retail(RetailTransaction(terminalType: 0, amount: abs(txDelta)))
-
-        // 💳 CHARGE MACHINE
-        case .chargeMachine:
-            if abs(txDelta) > 0 {
-                return .charge(
-                    ChargeTransaction(amount: txDelta)
-                )
-            }
-
-        default:
-            return determineProcessType(for: tx)  // <----
-        }
-
-        return .unknown(tx.processType.rawValue)
-    }
-
 }
