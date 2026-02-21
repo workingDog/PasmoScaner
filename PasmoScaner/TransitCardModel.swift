@@ -9,11 +9,6 @@ import Foundation
 import CoreNFC
 
 
-enum NFCError: Error {
-    case readFailed
-    case invalidBlock
-}
-
 @Observable
 final class TransitCardModel {
     

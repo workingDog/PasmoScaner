@@ -9,6 +9,11 @@ import Foundation
 import CoreNFC
 
 
+enum NFCError: Error {
+    case readFailed
+    case invalidBlock
+}
+
 struct FelicaDecoder {
     
     func readBalance(from card: NFCFeliCaTag) async throws -> Int {
